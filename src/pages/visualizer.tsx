@@ -10,28 +10,6 @@ interface SimulationStep {
   replacedPage: number | null
 }
 
-function buildTrace(pages: number[], frameSize: number) {
-  const trace: (number | null)[][] = []
-
-  for (let row = 0; row < frameSize; row++) {
-    const line: (number | null)[] = []
-
-    // left padding (shift)
-    for (let i = 0; i < row; i++) {
-      line.push(null)
-    }
-
-    // remaining values
-    for (let i = 0; i < pages.length - row; i++) {
-      line.push(pages[i])
-    }
-
-    trace.push(line)
-  }
-
-  return trace
-}
-
 function simulateFIFO(pages: number[], frameSize: number): SimulationStep[] {
   const frames: (number | null)[] = Array(frameSize).fill(null)
   const queue: number[] = []
@@ -441,15 +419,14 @@ export default function Visualizer() {
     </h2>
 
     {(() => {
-      const pages = steps.slice(0, currentStep).map(s => s.page) 
-      const trace = buildTrace(pages, frameSize)
+      const visible = steps.slice(0, currentStep)
 
       return (
         <div className="flex">
           {/* Labels */}
           <div className="sticky left-0 z-10 shrink-0 pr-2 bg-white">
             <div className="h-6" /> {/* spacer for header */}
-            {trace.map((_, i) => (
+            {Array.from({ length: frameSize }, (_, i) => (
               <div
                 key={i}
                 className="flex h-9 items-center justify-end pr-2 text-xs font-medium text-gray-400"
@@ -463,7 +440,7 @@ export default function Visualizer() {
           <div className="flex flex-col">
             {/* Header row (reference string) */}
             <div className="flex">
-              {pages.map((p, i) => {
+              {visible.map((step, i) => {
                 const isLast = i === currentStep - 1
                 return (
                   <div
@@ -472,28 +449,32 @@ export default function Visualizer() {
                       isLast ? 'text-indigo-700 scale-110' : 'text-gray-500'
                     }`}
                   >
-                    {p}
+                    {step.page}
                   </div>
                 )
               })}
             </div>
 
-            {/* Trace rows */}
-            {trace.map((row, rowIdx) => (
+            {/* Frame rows from simulation */}
+            {Array.from({ length: frameSize }, (_, rowIdx) => (
               <div key={rowIdx} className="flex">
-                {row.map((val, colIdx) => {
+                {visible.map((step, colIdx) => {
+                  const val = step.frames[rowIdx]
+                  const hasValue = val !== null
                   const isLast = colIdx === currentStep - 1
-                  const isDiagonal = val !== null
+                  const isChanged = step.changedIndex === rowIdx && isLast
                   return (
                     <div
                       key={colIdx}
                       className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono transition-all duration-300 ${
-                        isDiagonal && isLast
-                          ? 'border-indigo-300 bg-indigo-100 text-indigo-800 scale-110 z-10'
-                          : isDiagonal
-                          ? 'border-gray-200 bg-gray-50 text-gray-600'
-                          : colIdx === currentStep - 1
+                        isChanged && step.isFault
+                          ? 'border-red-300 bg-red-50 text-red-800 scale-110 z-10'
+                          : isChanged && !step.isFault
+                          ? 'border-green-300 bg-green-50 text-green-800 scale-110 z-10'
+                          : hasValue && isLast
                           ? 'border-indigo-200 bg-indigo-50/50'
+                          : hasValue
+                          ? 'border-gray-200 bg-gray-50 text-gray-600'
                           : 'border-gray-100'
                       }`}
                     >
