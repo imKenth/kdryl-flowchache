@@ -10,6 +10,27 @@ interface SimulationStep {
   replacedPage: number | null
 }
 
+function buildTrace(pages: number[], frameSize: number, isFault: boolean[]) {
+  const trace: (number | null)[][] = Array.from(
+    { length: frameSize },
+    () => new Array<number | null>(pages.length).fill(null)
+  )
+
+  for (let col = 0; col < pages.length; col++) {
+    for (let row = 0; row < frameSize; row++) {
+      if (col === 0) {
+        trace[row][col] = row === 0 ? pages[0] : null
+      } else if (!isFault[col]) {
+        trace[row][col] = trace[row][col - 1]
+      } else {
+        trace[row][col] = row === 0 ? pages[col] : trace[row - 1][col - 1]
+      }
+    }
+  }
+
+  return trace
+}
+
 function simulateFIFO(pages: number[], frameSize: number): SimulationStep[] {
   const frames: (number | null)[] = Array(frameSize).fill(null)
   const queue: number[] = []
@@ -419,13 +440,16 @@ export default function Visualizer() {
     </h2>
 
     {(() => {
-      const visible = steps.slice(0, currentStep)
+      const pages = steps.map(s => s.page)
+      const isFault = steps.map(s => s.isFault)
+      const trace = buildTrace(pages, frameSize, isFault)
+      const colCount = Math.min(currentStep, pages.length)
 
       return (
         <div className="flex">
           {/* Labels */}
           <div className="sticky left-0 z-10 shrink-0 pr-2 bg-white">
-            <div className="h-6" /> {/* spacer for header */}
+            <div className="h-6" />
             {Array.from({ length: frameSize }, (_, i) => (
               <div
                 key={i}
@@ -440,7 +464,7 @@ export default function Visualizer() {
           <div className="flex flex-col">
             {/* Header row (reference string) */}
             <div className="flex">
-              {visible.map((step, i) => {
+              {Array.from({ length: colCount }, (_, i) => {
                 const isLast = i === currentStep - 1
                 return (
                   <div
@@ -449,28 +473,27 @@ export default function Visualizer() {
                       isLast ? 'text-indigo-700 scale-110' : 'text-gray-500'
                     }`}
                   >
-                    {step.page}
+                    {pages[i]}
                   </div>
                 )
               })}
             </div>
 
-            {/* Frame rows from simulation */}
+            {/* Diagonal trace rows with hit awareness */}
             {Array.from({ length: frameSize }, (_, rowIdx) => (
               <div key={rowIdx} className="flex">
-                {visible.map((step, colIdx) => {
-                  const val = step.frames[rowIdx]
+                {Array.from({ length: colCount }, (_, colIdx) => {
+                  const val = trace[rowIdx][colIdx]
                   const hasValue = val !== null
                   const isLast = colIdx === currentStep - 1
-                  const isChanged = step.changedIndex === rowIdx && isLast
+                  const step = steps[colIdx]
+                  const isChanged = step.changedIndex === rowIdx && isLast && step.isFault
                   return (
                     <div
                       key={colIdx}
                       className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono transition-all duration-300 ${
-                        isChanged && step.isFault
+                        isChanged
                           ? 'border-red-300 bg-red-50 text-red-800 scale-110 z-10'
-                          : isChanged && !step.isFault
-                          ? 'border-green-300 bg-green-50 text-green-800 scale-110 z-10'
                           : hasValue && isLast
                           ? 'border-indigo-200 bg-indigo-50/50'
                           : hasValue
