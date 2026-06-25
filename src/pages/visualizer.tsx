@@ -10,6 +10,28 @@ interface SimulationStep {
   replacedPage: number | null
 }
 
+function buildTrace(pages: number[], frameSize: number) {
+  const trace: (number | null)[][] = []
+
+  for (let row = 0; row < frameSize; row++) {
+    const line: (number | null)[] = []
+
+    // left padding (shift)
+    for (let i = 0; i < row; i++) {
+      line.push(null)
+    }
+
+    // remaining values
+    for (let i = 0; i < pages.length - row; i++) {
+      line.push(pages[i])
+    }
+
+    trace.push(line)
+  }
+
+  return trace
+}
+
 function simulateFIFO(pages: number[], frameSize: number): SimulationStep[] {
   const frames: (number | null)[] = Array(frameSize).fill(null)
   const queue: number[] = []
@@ -412,57 +434,66 @@ export default function Visualizer() {
       )}
 
       {/* Solution Trace */}
-      {hasRun && steps.length > 0 && (
-        <div className={cardBase + ' overflow-x-auto'}>
-          <h2 className="mb-3 text-sm font-semibold text-gray-700">Solution Trace</h2>
-          <div className="flex">
-            {/* Step labels column */}
-            <div className="sticky left-0 z-10 shrink-0 pr-2 pt-6 bg-white">
-              {Array.from({ length: frameSize }, (_, i) => (
-                <div key={i} className="flex h-9 items-center justify-end pr-2 text-xs font-medium text-gray-400">
-                  Frame {i + 1}
+{hasRun && steps.length > 0 && (
+  <div className={cardBase + ' overflow-x-auto'}>
+    <h2 className="mb-3 text-sm font-semibold text-gray-700">
+      Solution Trace
+    </h2>
+
+    {(() => {
+      const pages = steps.map(s => s.page) // ✅ correct source
+      const trace = buildTrace(pages, frameSize)
+
+      return (
+        <div className="flex">
+          {/* Labels */}
+          <div className="sticky left-0 z-10 shrink-0 pr-2 bg-white">
+            <div className="h-6" /> {/* spacer for header */}
+            {trace.map((_, i) => (
+              <div
+                key={i}
+                className="flex h-9 items-center justify-end pr-2 text-xs font-medium text-gray-400"
+              >
+                Shift {i + 1}
+              </div>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="flex flex-col">
+            {/* Header row (reference string) */}
+            <div className="flex">
+              {pages.map((p, i) => (
+                <div
+                  key={i}
+                  className="flex h-6 w-12 items-center justify-center text-[11px] font-bold text-gray-500"
+                >
+                  {p}
                 </div>
               ))}
-              <div className="flex h-7 items-center justify-end pr-2 text-[11px] font-semibold text-gray-400">Status</div>
-              <div className="flex h-7 items-center justify-end pr-2 text-[11px] font-semibold text-gray-400">Evict</div>
             </div>
-            {/* Steps row */}
-            <div className="flex">
-              {visibleSteps.map((step, idx) => {
-                const isLast = idx === currentStep - 1
-                const isFaultCol = isLast && step.isFault
-                const isHitCol = isLast && !step.isFault
-                return (
-                  <div key={idx} className="flex flex-col">
-                    <div className={`flex h-6 items-center justify-center rounded-t-md px-2 text-[11px] font-bold ${
-                      isFaultCol ? 'bg-red-100 text-red-700' : isHitCol ? 'bg-green-100 text-green-700' : 'text-gray-400'
-                    }`}>
-                      {step.page}
-                    </div>
-                    {step.frames.map((val, fi) => (
-                      <div key={fi} className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono ${
-                        step.changedIndex === fi && isLast
-                          ? step.isFault ? 'bg-red-100 text-red-800 font-bold border-red-200' : 'bg-green-100 text-green-800 font-bold border-green-200'
-                          : 'text-gray-700 border-gray-100'
-                      }`}>
-                        {val !== null ? val : '-'}
-                      </div>
-                    ))}
-                    <div className={`flex h-7 w-12 items-center justify-center border-b border-r text-[10px] font-bold ${
-                      step.isFault ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
-                    } ${isLast ? 'border-indigo-300' : 'border-gray-200'}`}>
-                      {step.isFault ? '❌' : '✅'}
-                    </div>
-                    <div className="flex h-7 w-12 items-center justify-center border-b border-r text-[10px] font-mono text-gray-400">
-                      {step.replacedPage !== null ? step.replacedPage : '—'}
-                    </div>
+
+            {/* Trace rows */}
+            {trace.map((row, rowIdx) => (
+              <div key={rowIdx} className="flex">
+                {row.map((val, colIdx) => (
+                  <div
+                    key={colIdx}
+                    className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono
+                      ${colIdx === currentStep - 1 ? 'bg-indigo-50 border-indigo-200' : 'border-gray-100'}
+                    `}
+                  >
+                    {val ?? ''}
                   </div>
-                )
-              })}
-            </div>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      )
+    })()}
+  </div>
+)}
 
       {/* Summary Stats */}
       {hasRun && steps.length > 0 && (
