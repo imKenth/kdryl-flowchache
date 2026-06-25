@@ -433,10 +433,10 @@ export default function Visualizer() {
       )}
 
       {/* Solution Trace */}
-{hasRun && steps.length > 0 && (
+{hasRun && steps.length > 0 && algorithm === 'FIFO' && (
   <div className={cardBase + ' overflow-x-auto'}>
     <h2 className="mb-3 text-sm font-semibold text-gray-700">
-      Solution Trace
+      Solution Trace — FIFO
     </h2>
 
     {(() => {
