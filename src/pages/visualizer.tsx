@@ -441,7 +441,7 @@ export default function Visualizer() {
     </h2>
 
     {(() => {
-      const pages = steps.map(s => s.page) // ✅ correct source
+      const pages = steps.slice(0, currentStep).map(s => s.page) 
       const trace = buildTrace(pages, frameSize)
 
       return (
@@ -454,7 +454,7 @@ export default function Visualizer() {
                 key={i}
                 className="flex h-9 items-center justify-end pr-2 text-xs font-medium text-gray-400"
               >
-                Shift {i + 1}
+                Frame {i + 1}
               </div>
             ))}
           </div>
@@ -463,29 +463,44 @@ export default function Visualizer() {
           <div className="flex flex-col">
             {/* Header row (reference string) */}
             <div className="flex">
-              {pages.map((p, i) => (
-                <div
-                  key={i}
-                  className="flex h-6 w-12 items-center justify-center text-[11px] font-bold text-gray-500"
-                >
-                  {p}
-                </div>
-              ))}
+              {pages.map((p, i) => {
+                const isLast = i === currentStep - 1
+                return (
+                  <div
+                    key={i}
+                    className={`flex h-6 w-12 items-center justify-center text-[11px] font-bold transition-all duration-200 ${
+                      isLast ? 'text-indigo-700 scale-110' : 'text-gray-500'
+                    }`}
+                  >
+                    {p}
+                  </div>
+                )
+              })}
             </div>
 
             {/* Trace rows */}
             {trace.map((row, rowIdx) => (
               <div key={rowIdx} className="flex">
-                {row.map((val, colIdx) => (
-                  <div
-                    key={colIdx}
-                    className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono
-                      ${colIdx === currentStep - 1 ? 'bg-indigo-50 border-indigo-200' : 'border-gray-100'}
-                    `}
-                  >
-                    {val ?? ''}
-                  </div>
-                ))}
+                {row.map((val, colIdx) => {
+                  const isLast = colIdx === currentStep - 1
+                  const isDiagonal = val !== null
+                  return (
+                    <div
+                      key={colIdx}
+                      className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono transition-all duration-300 ${
+                        isDiagonal && isLast
+                          ? 'border-indigo-300 bg-indigo-100 text-indigo-800 scale-110 z-10'
+                          : isDiagonal
+                          ? 'border-gray-200 bg-gray-50 text-gray-600'
+                          : colIdx === currentStep - 1
+                          ? 'border-indigo-200 bg-indigo-50/50'
+                          : 'border-gray-100'
+                      }`}
+                    >
+                      {val ?? ''}
+                    </div>
+                  )
+                })}
               </div>
             ))}
           </div>
