@@ -514,6 +514,15 @@ export default function Visualizer() {
   </div>
 )}
 
+{/* LRU Solution Trace (placeholder) */}
+{hasRun && steps.length > 0 && algorithm === 'LRU' && (
+  <div className={cardBase + ' overflow-x-auto'}>
+    <h2 className="mb-3 text-sm font-semibold text-gray-700">
+      Solution Trace — LRU
+    </h2>
+  </div>
+)}
+
       {/* Summary Stats */}
       {hasRun && steps.length > 0 && (
         <>
