@@ -31,6 +31,39 @@ function buildTrace(pages: number[], frameSize: number, isFault: boolean[]) {
   return trace
 }
 
+function buildTraceLRU(pages: number[], frameSize: number, steps: SimulationStep[]) {
+  const trace: (number | null)[][] = Array.from(
+    { length: frameSize },
+    () => new Array<number | null>(pages.length).fill(null)
+  )
+
+  const frameRecency: number[] = Array(frameSize).fill(-1)
+  let tick = 0
+
+  for (let col = 0; col < pages.length; col++) {
+    const step = steps[col]
+    const pageIdx = step.frames.indexOf(step.page)
+
+    if (pageIdx !== -1) {
+      frameRecency[pageIdx] = tick++
+    }
+
+    const frameIndices = Array.from({ length: frameSize }, (_, i) => i)
+    frameIndices.sort((a, b) => {
+      const aHas = step.frames[a] !== null
+      const bHas = step.frames[b] !== null
+      if (aHas !== bHas) return aHas ? -1 : 1
+      return frameRecency[b] - frameRecency[a]
+    })
+
+    for (let row = 0; row < frameSize; row++) {
+      trace[row][col] = step.frames[frameIndices[row]]
+    }
+  }
+
+  return trace
+}
+
 function simulateFIFO(pages: number[], frameSize: number): SimulationStep[] {
   const frames: (number | null)[] = Array(frameSize).fill(null)
   const queue: number[] = []
@@ -380,6 +413,9 @@ export default function Visualizer() {
               <div className="flex h-7 items-center justify-end pr-2 text-[11px] font-semibold text-gray-400">
                 Status
               </div>
+              <div className="flex h-7 items-center justify-end pr-2 text-[11px] font-semibold text-gray-400">
+                Evict
+              </div>
             </div>
             {/* Timeline columns */}
             <div className="flex">
@@ -423,6 +459,12 @@ export default function Visualizer() {
                         step.isFault ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
                       } ${colIdx === currentStep - 1 ? 'border-indigo-300' : 'border-gray-200'}`}>
                         {step.isFault ? '❌' : '✅'}
+                      </div>
+                      {/* Evict row */}
+                      <div className={`flex h-7 w-12 items-center justify-center border-b border-r text-[10px] font-mono font-bold ${
+                        step.replacedPage !== null ? 'bg-amber-50 text-amber-700' : 'text-gray-300'
+                      } ${colIdx === currentStep - 1 ? 'border-indigo-300' : 'border-gray-200'}`}>
+                        {step.replacedPage !== null ? step.replacedPage : '—'}
                       </div>
                     </div>
                   )
@@ -514,12 +556,91 @@ export default function Visualizer() {
   </div>
 )}
 
-{/* LRU Solution Trace (placeholder) */}
+{/* LRU Solution Trace */}
 {hasRun && steps.length > 0 && algorithm === 'LRU' && (
   <div className={cardBase + ' overflow-x-auto'}>
     <h2 className="mb-3 text-sm font-semibold text-gray-700">
       Solution Trace — LRU
     </h2>
+
+    {(() => {
+      const pages = steps.map(s => s.page)
+      const trace = buildTraceLRU(pages, frameSize, steps)
+      const colCount = Math.min(currentStep, pages.length)
+
+      return (
+        <div className="flex">
+          {/* Labels */}
+          <div className="sticky left-0 z-10 shrink-0 pr-2 bg-white">
+            <div className="h-6" />
+            {Array.from({ length: frameSize }, (_, i) => (
+              <div
+                key={i}
+                className="flex h-9 items-center justify-end pr-2 text-xs font-medium text-gray-400"
+              >
+                Frame {i + 1}
+              </div>
+            ))} 
+          </div>
+
+          {/* Grid */}
+          <div className="flex flex-col">
+            {/* Header row (reference string) */}
+            <div className="flex">
+              {Array.from({ length: colCount }, (_, i) => {
+                const isLast = i === currentStep - 1
+                return (
+                  <div
+                    key={i}
+                    className={`flex h-6 w-12 items-center justify-center text-[11px] font-bold transition-all duration-200 ${
+                      isLast ? 'text-indigo-700 scale-110' : 'text-gray-500'
+                    }`}
+                  >
+                    {pages[i]}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Trace rows */}
+            {Array.from({ length: frameSize }, (_, rowIdx) => (
+              <div key={rowIdx} className="flex">
+                {Array.from({ length: colCount }, (_, colIdx) => {
+                  const val = trace[rowIdx][colIdx]
+                  const hasValue = val !== null
+                  const isLast = colIdx === currentStep - 1
+                  const step = steps[colIdx]
+                  const isLruRow = rowIdx === frameSize - 1
+                  const isAccessed = isLast && hasValue && val === step.page
+                  const isFaulted = isAccessed && step.isFault
+                  const isHit = isAccessed && !step.isFault
+                  return (
+                    <div
+                      key={colIdx}
+                      className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono transition-all duration-300 ${
+                        isFaulted
+                          ? 'border-red-300 bg-red-50 text-red-800 scale-110 z-10'
+                          : isHit
+                          ? 'border-green-300 bg-green-50 text-green-700 scale-110 z-10'
+                          : isLast && isLruRow
+                          ? 'border-orange-200 bg-orange-50/60 text-orange-700 font-semibold'
+                          : hasValue && isLast
+                          ? 'border-indigo-200 bg-indigo-50/50'
+                          : hasValue
+                          ? 'border-gray-200 bg-gray-50 text-gray-600'
+                          : 'border-gray-100'
+                      }`}
+                    >
+                      {val ?? ''}
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    })()}
   </div>
 )}
 
