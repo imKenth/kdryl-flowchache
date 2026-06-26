@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Button from '../ui/Button'
 
 const links = [
@@ -10,6 +10,9 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const isVisualizer = location.pathname.includes("/visualizer")
 
   function scrollTo(id: string) {
     if (location.pathname !== '/') {
@@ -39,11 +42,13 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <Button size="sm" onClick={() => navigate('/visualizer')}>
-            Launch Visualizer
-          </Button>
-        </div>
+        {!isVisualizer && (
+          <div className="hidden md:block">
+            <Button size="sm" variant="secondary" onClick={() => navigate('/visualizer')}>
+              Launch Visualizer
+            </Button>
+          </div>
+          )}
 
         <button
           type="button"
