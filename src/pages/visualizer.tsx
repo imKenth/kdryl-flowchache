@@ -435,10 +435,16 @@ export default function Visualizer() {
                       {step.frames.map((val, frameIdx) => {
                         const isChanged = step.changedIndex === frameIdx && isLastCol
                         const isHighlighted = highlightedFault !== null && highlightedFault === colIdx && step.changedIndex === frameIdx
+                        const reason = step.replacedPage !== null && isChanged
+                          ? algorithm === 'LRU'
+                            ? `Page ${step.replacedPage} evicted — LRU (least recently used)`
+                            : `Page ${step.replacedPage} evicted — FIFO (first in, first out)`
+                          : ''
                         return (
                           <div
                             key={frameIdx}
-                            className={`flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono transition-all duration-300 ${
+                            title={reason}
+                            className={`relative flex h-9 w-12 items-center justify-center border-b border-r text-sm font-mono transition-all duration-300 ${
                               isHighlighted
                                 ? 'border-red-400 bg-red-200 text-red-900 scale-110 shadow-md z-10'
                                 : isChanged && isFaultCol
