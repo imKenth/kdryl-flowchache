@@ -1,5 +1,5 @@
 import type { Algorithm, SimulationStep } from '../types'
-import { buildTrace, buildTraceLRU } from '../logic/lru'
+import { buildTrace, buildTraceLRU } from '../logic/fifo/lru'
 import { cardBase } from '../utils/helpers'
 
 interface SolutionTraceProps {

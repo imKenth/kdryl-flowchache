@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Algorithm, SimulationStep, SimulatorState, SimulatorActions } from '../types'
-import { simulate } from '../logic/lru'
+import { simulate } from '../logic/fifo/lru'
 import { exportCSV as doExportCSV } from '../utils/helpers'
 
 /**
