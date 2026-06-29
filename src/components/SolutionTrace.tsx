@@ -9,6 +9,7 @@ interface SolutionTraceProps {
   algorithm: Algorithm
 }
 
+/** Algorithm-specific solution trace table showing how pages propagate through frames */
 export default function SolutionTrace({ steps, currentStep, frameSize, algorithm }: SolutionTraceProps) {
   if (steps.length === 0) return null
 
@@ -82,7 +83,7 @@ export default function SolutionTrace({ steps, currentStep, frameSize, algorithm
     )
   }
 
-  // LRU
+  /** LRU trace — rows sorted by most-recently-used (top) to least-recently-used (bottom) */
   const trace = buildTraceLRU(pages, frameSize, steps)
   const colCount = Math.min(currentStep, pages.length)
 

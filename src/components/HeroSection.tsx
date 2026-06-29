@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
 
+/** Landing page hero section with title, description, and call-to-action buttons */
 export default function Hero() {
   const navigate = useNavigate();
 
   return (
     <section className="relative min-h-[calc(100vh-65px)] flex flex-col items-center justify-center text-center bg-gradient-to-b from-white via-indigo-50/30 to-white px-6">
-      {/* Decorative blobs */}
+      {/* Decorative background blobs */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-200/20 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl" />
 
@@ -41,6 +42,7 @@ export default function Hero() {
           </Button>
         </div>
 
+        {/* Feature pills */}
         <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-400">
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-2 w-2 rounded-full bg-green-400" />

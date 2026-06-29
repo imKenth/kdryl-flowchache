@@ -5,6 +5,7 @@ import Hero from './components/HeroSection'
 import Button from './components/ui/Button'
 import Visualizer from './pages/visualizer'
 
+/** Feature cards displayed on the landing page */
 const features = [
   {
     title: 'FIFO Algorithm',
@@ -28,15 +29,18 @@ const features = [
   },
 ]
 
+/** Steps guide displayed in the "How It Works" section */
 const steps = [
   { num: '01', title: 'Configure', desc: 'Set the number of memory frames, pick FIFO or LRU, and enter a page reference string.' },
   { num: '02', title: 'Simulate', desc: 'Watch pages load into frames one by one. Faults and hits are highlighted with color cues.' },
   { num: '03', title: 'Analyze', desc: 'Review the complete solution trace and summary statistics to understand algorithm behavior.' },
 ]
 
+/** Landing page with hero, features, how-it-works, and footer sections */
 function Home() {
   const navigate = useNavigate()
 
+  /** Scroll to a section on page load if a hash is present in the URL */
   useEffect(() => {
     if (location.hash) {
       const id = location.hash.replace('#', '')
@@ -121,6 +125,7 @@ function Home() {
   )
 }
 
+/** Root application component with navigation and routing */
 function App() {
   return (
     <div className="min-h-screen bg-white">

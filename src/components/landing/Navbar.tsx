@@ -2,18 +2,22 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Button from '../ui/Button'
 
+/** Navigation links for the landing page sections */
 const links = [
   { label: 'Features', id: 'features' },
   { label: 'How It Works', id: 'how-it-works' },
 ]
 
+/** Responsive navbar with smooth-scroll navigation and mobile hamburger menu */
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
-  const isVisualizer = location.pathname.includes("/visualizer")
+  /** Whether the current page is the visualizer (hides desktop nav CTA) */
+  const isVisualizer = location.pathname === ("/visualizer")
 
+  /** Scroll to a section, navigating to home first if needed */
   function scrollTo(id: string) {
     if (location.pathname !== '/') {
       navigate('/' + '#' + id)
@@ -23,13 +27,28 @@ export default function Navbar() {
     }
   }
 
+  {/* When in visualizer, center the logo */}
+  function logoCenter(isVisualizer: boolean) {
+    return isVisualizer
+    ? "flex justify-center item-center"
+    : "flex justify-between items-center"
+  }
+
   return (
+
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+      <div 
+        className={`mx-auto flex max-w-7xl px-6 py-4 lg:px-8${
+          logoCenter(isVisualizer)
+          }`}
+      >
+
         <a href="/" className="text-xl font-bold tracking-tight text-gray-900">
           Flow<span className="text-indigo-600">Cache</span>
         </a>
 
+        {/* Desktop navigation */}
+        {!isVisualizer  && (
         <nav className="hidden md:flex md:items-center md:gap-8">
           {links.map((link) => (
             <button
@@ -41,7 +60,13 @@ export default function Navbar() {
             </button>
           ))}
         </nav>
+        )}
+        
+        
 
+
+
+        {/* Desktop call-to-action — hidden on the visualizer page */}
         {!isVisualizer && (
           <div className="hidden md:block">
             <Button size="sm" variant="secondary" onClick={() => navigate('/visualizer')}>
@@ -50,6 +75,7 @@ export default function Navbar() {
           </div>
           )}
 
+        {/* Mobile hamburger toggle */}
         <button
           type="button"
           onClick={() => setOpen(!open)}
@@ -66,6 +92,7 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* Mobile menu dropdown */}
       {open && (
         <div className="border-t border-gray-100 px-6 pb-5 pt-3 md:hidden">
           <nav className="flex flex-col gap-3">

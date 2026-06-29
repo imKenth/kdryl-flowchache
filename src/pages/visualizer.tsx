@@ -8,10 +8,12 @@ import SolutionTrace from '../components/SolutionTrace'
 import StatsPanel from '../components/StatsPanel'
 import { computeStats } from '../utils/helpers'
 
+/** Main visualizer page that orchestrates all simulation UI components */
 export default function Visualizer() {
   const sim = useSimulator()
   const stats = computeStats(sim.steps)
 
+  /** Start simulation and immediately begin auto-play */
   const handleStart = useCallback(() => {
     sim.runSimulation()
     setTimeout(() => sim.togglePlay(), 50)

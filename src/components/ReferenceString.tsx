@@ -6,6 +6,7 @@ interface ReferenceStringProps {
   currentStep: number
 }
 
+/** Visual display of the page reference string with fault/hit color coding */
 export default function ReferenceString({ steps, currentStep }: ReferenceStringProps) {
   return (
     <div className={cardBase}>

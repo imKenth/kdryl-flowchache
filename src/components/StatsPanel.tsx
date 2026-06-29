@@ -7,6 +7,7 @@ interface StatsPanelProps {
   onExportCSV: () => void
 }
 
+/** Summary statistics panel showing fault/hit counts and ratios, plus CSV export */
 export default function StatsPanel({ totalFaults, totalHits, hitRatio, faultRatio, hasRun, onExportCSV }: StatsPanelProps) {
   if (!hasRun) return null
 

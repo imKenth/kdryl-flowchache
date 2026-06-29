@@ -14,6 +14,7 @@ interface InputPanelProps {
   onReset: () => void
 }
 
+/** Configuration panel for simulation inputs: frame size, algorithm, reference string */
 export default function InputPanel({
   frameSize, algorithm, inputString, hasRun, error,
   onFrameSizeChange, onAlgorithmChange, onInputStringChange, onStart, onReset,
@@ -22,6 +23,7 @@ export default function InputPanel({
     <>
       <div className={cardBase}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Frame size input — clamped between 1 and 10 */}
           <div>
             <label className={labelBase}>Frame Size</label>
             <input
@@ -35,6 +37,7 @@ export default function InputPanel({
             />
           </div>
 
+          {/* Algorithm toggle: FIFO / LRU */}
           <div>
             <label className={labelBase}>Algorithm</label>
             <div className="flex gap-2">
@@ -55,6 +58,7 @@ export default function InputPanel({
             </div>
           </div>
 
+          {/* Page reference string text input */}
           <div className="sm:col-span-2 lg:col-span-1">
             <label className={labelBase}>Page Reference String</label>
             <input
@@ -67,6 +71,7 @@ export default function InputPanel({
             />
           </div>
 
+          {/* Action buttons */}
           <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
             <button
               onClick={onStart}
@@ -85,6 +90,7 @@ export default function InputPanel({
         </div>
       </div>
 
+      {/* Validation error message */}
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
           {error}

@@ -10,6 +10,7 @@ interface ControlsProps {
   onSpeedChange: (speed: number) => void
 }
 
+/** Playback controls: step back/forward, play/pause, speed slider, step counter */
 export default function Controls({
   currentStep, totalSteps, isPlaying, speed, hasRun,
   onBack, onForward, onTogglePlay, onSpeedChange,
@@ -18,6 +19,7 @@ export default function Controls({
 
   return (
     <div className="flex flex-wrap items-center gap-3 sm:gap-4 sm:justify-between">
+      {/* Navigation buttons */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         <button
           onClick={onBack}
@@ -43,6 +45,7 @@ export default function Controls({
         </button>
       </div>
 
+      {/* Speed slider — inverted range: left = fast, right = slow */}
       <div className="flex items-center gap-2">
         <span className="text-[11px] sm:text-xs text-gray-500">Speed:</span>
         <input
@@ -57,6 +60,7 @@ export default function Controls({
         <span className="w-8 sm:w-10 text-[11px] sm:text-xs text-gray-500 tabular-nums">{speed}ms</span>
       </div>
 
+      {/* Step progress indicator */}
       <span className="text-[11px] sm:text-xs text-gray-500 tabular-nums">
         Step {currentStep} / {totalSteps}
       </span>

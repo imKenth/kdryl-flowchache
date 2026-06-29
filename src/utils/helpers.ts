@@ -1,9 +1,11 @@
 import type { SimulationStep } from '../types'
 
+/** Shared Tailwind CSS class strings for consistent styling */
 export const inputBase = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500'
 export const labelBase = 'block text-xs font-medium text-gray-500 mb-1'
 export const cardBase = 'rounded-xl border border-gray-200 bg-white p-4 shadow-sm'
 
+/** Compute aggregate statistics from simulation steps */
 export function computeStats(steps: SimulationStep[]) {
   const totalFaults = steps.filter(s => s.isFault).length
   const totalHits = steps.length - totalFaults
@@ -12,6 +14,7 @@ export function computeStats(steps: SimulationStep[]) {
   return { totalFaults, totalHits, hitRatio, faultRatio }
 }
 
+/** Generate and download a CSV file of the simulation results */
 export function exportCSV(steps: SimulationStep[], frameSize: number, algorithm: string) {
   const headers = ['Step', 'Page', ...Array.from({ length: frameSize }, (_, i) => `F${i + 1}`), 'Fault', 'Replaced']
   const rows = steps.map((s, i) => [
