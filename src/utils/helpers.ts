@@ -6,7 +6,7 @@ export const labelBase = 'block text-xs font-medium text-gray-500 mb-1'
 export const cardBase = 'rounded-xl border border-gray-200 bg-white p-4 shadow-sm'
 
 /** Compute aggregate statistics from simulation steps */
-export function computeStats(steps: SimulationStep[]) {
+export function computeStats<T>(steps: SimulationStep<T>[]) {
   const totalFaults = steps.filter(s => s.isFault).length
   const totalHits = steps.length - totalFaults
   const hitRatio = steps.length > 0 ? (totalHits / steps.length).toFixed(2) : '0.00'
@@ -15,7 +15,7 @@ export function computeStats(steps: SimulationStep[]) {
 }
 
 /** Generate and download a CSV file of the simulation results */
-export function exportCSV(steps: SimulationStep[], frameSize: number, algorithm: string) {
+export function exportCSV<T>(steps: SimulationStep<T>[], frameSize: number, algorithm: string) {
   const headers = ['Step', 'Page', ...Array.from({ length: frameSize }, (_, i) => `F${i + 1}`), 'Fault', 'Replaced']
   const rows = steps.map((s, i) => [
     i + 1,

@@ -2,7 +2,7 @@ import type { SimulationStep } from '../types'
 import { cardBase } from '../utils/helpers'
 
 interface FrameGridProps {
-  steps: SimulationStep[]
+  steps: SimulationStep<string>[]
   currentStep: number
   frameSize: number
   highlightedFault: number | null

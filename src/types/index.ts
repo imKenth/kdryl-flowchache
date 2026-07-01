@@ -2,17 +2,17 @@
 export type Algorithm = 'FIFO' | 'LRU'
 
 /** Represents a single step in the simulation timeline */
-export interface SimulationStep {
-  /** The page number being referenced at this step */
-  page: number
+export interface SimulationStep<T> {
+  /** The page identifier being referenced at this step */
+  page: T
   /** Snapshot of frame contents after processing this step */
-  frames: (number | null)[]
+  frames: (T | null)[]
   /** Whether this step caused a page fault */
   isFault: boolean
   /** Index of the frame that was modified (null if no change) */
   changedIndex: number | null
-  /** The page number that was evicted (null if no eviction) */
-  replacedPage: number | null
+  /** The page identifier that was evicted (null if no eviction) */
+  replacedPage: T | null
 }
 
 /** Reactive state of the simulator */
@@ -20,7 +20,7 @@ export interface SimulatorState {
   frameSize: number
   algorithm: Algorithm
   inputString: string
-  steps: SimulationStep[]
+  steps: SimulationStep<string>[]
   currentStep: number
   isPlaying: boolean
   speed: number

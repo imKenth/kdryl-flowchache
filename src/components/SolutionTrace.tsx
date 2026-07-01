@@ -1,9 +1,9 @@
 import type { Algorithm, SimulationStep } from '../types'
-import { buildTrace, buildTraceLRU } from '../logic/fifo/lru'
+import { buildTrace, buildTraceLRU } from '../logic/fifo-lru'
 import { cardBase } from '../utils/helpers'
 
 interface SolutionTraceProps {
-  steps: SimulationStep[]
+  steps: SimulationStep<string>[]
   currentStep: number
   frameSize: number
   algorithm: Algorithm
@@ -20,7 +20,7 @@ export default function SolutionTrace({ steps, currentStep, frameSize, algorithm
 
   if (algorithm === 'FIFO') {
     const isFault = steps.map(s => s.isFault)
-    const trace = buildTrace(pages, frameSize, isFault)
+    const trace = buildTrace<string>(pages, frameSize, isFault)
     const colCount = Math.min(currentStep, pages.length)
 
     return (
@@ -84,7 +84,7 @@ export default function SolutionTrace({ steps, currentStep, frameSize, algorithm
   }
 
   /** LRU trace — rows sorted by most-recently-used (top) to least-recently-used (bottom) */
-  const trace = buildTraceLRU(pages, frameSize, steps)
+  const trace = buildTraceLRU<string>(pages, frameSize, steps)
   const colCount = Math.min(currentStep, pages.length)
 
   return (
